@@ -1,0 +1,58 @@
+# ubuntu 16.04のイメージを利用
+FROM ubuntu:16.04
+
+
+# Dockerfile作成者
+MAINTAINER sumi
+
+
+# コンテナのタイムゾーンがデフォルトでUTCになっているので、ホストOSの/etc/localtimeを読み込み専用でマウント
+VOLUME /etc/localtime:/etc/localtime:ro
+
+
+# そのままapt-getでインストールするとパスワードを聞かれる箇所で止まってしまうので、予め設定しておく。この例ではパスワードは「root」。
+RUN echo "mysql-server mysql-server/root_password password root" | debconf-set-selections && \
+    echo "mysql-server mysql-server/root_password_again password root" | debconf-set-selections
+
+RUN apt-get update && \
+	apt-get -y install mysql-server-5.7 && \
+	mkdir -p /var/lib/mysql && \
+	mkdir -p /var/run/mysqld && \
+	mkdir -p /var/log/mysql && \
+	touch /var/lib/mysql/mysql.sock && \
+	chown -R mysql:mysql /var/lib/mysql && \
+	chown -R mysql:mysql /var/run/mysqld && \
+	chown -R mysql:mysql /var/log/mysql && \
+	chown mysql:mysql /var/lib/mysql/mysql.sock
+
+
+# my.cnfを編集
+# bind-address行をコメントアウトして、外部から接続出来るようにする
+RUN sed -i -e "s/^bind-address\s*=\s*\(.*\)/#bind-address = \1/" /etc/mysql/my.cnf
+
+# デフォルトの文字コードをUTF-8に設定
+RUN sed -i -e "s/\(\[mysqld\]\)/\1\ncharacter-set-server = utf8/g" /etc/mysql/my.cnf
+RUN sed -i -e "s/\(\[client\]\)/\1\ndefault-character-set = utf8/g" /etc/mysql/my.cnf
+RUN sed -i -e "s/\(\[mysqldump\]\)/\1\ndefault-character-set = utf8/g" /etc/mysql/my.cnf
+RUN sed -i -e "s/\(\[mysql\]\)/\1\ndefault-character-set = utf8/g" /etc/mysql/my.cnf
+
+
+# UTF-8 and bind-address
+RUN sed -i -e "$ a [client]\n\n[mysql]\n\n[mysqld]"  /etc/mysql/my.cnf && \
+	sed -i -e "s/\(\[client\]\)/\1\ndefault-character-set = utf8/g" /etc/mysql/my.cnf && \
+	sed -i -e "s/\(\[mysql\]\)/\1\ndefault-character-set = utf8/g" /etc/mysql/my.cnf && \
+	sed -i -e "s/\(\[mysqld\]\)/\1\ninit_connect='SET NAMES utf8'\ncharacter-set-server = utf8\ncollation-server=utf8_unicode_ci\nbind-address = 0.0.0.0/g" /etc/mysql/my.cnf
+
+VOLUME /var/lib/mysql
+
+COPY ./startup.sh /root/startup.sh
+RUN chmod +x /root/startup.sh
+
+ENTRYPOINT ["/root/startup.sh"]
+
+#EXPOSE 3306
+CMD ["/usr/bin/mysqld_safe"]
+
+#参考
+#https://github.com/Leafney/ubuntu-mysql
+#https://qiita.com/kxphotographer/items/001a4b0ef277b76833db

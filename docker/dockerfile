@@ -1,0 +1,131 @@
+# FROM ubuntu:16.04
+# MAINTAINER sumi
+
+# #https://qiita.com/kekedadamama/items/154753aa8974774a8b2b
+# #https://qiita.com/RyosukeKamei/items/eca9687162b7fe122094
+# #https://qiita.com/uronism/items/
+# #https://qiita.com/tkhm/items/6c2b021d552e009b04a9
+
+# # Pick up some TF dependencies
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#         build-essential \
+#         curl \
+#         libfreetype6-dev \
+#         libpng12-dev \
+#         libzmq3-dev \
+#         pkg-config \
+#         python \
+#         python-dev \
+#         rsync \
+#         software-properties-common \
+#         unzip \
+#         && \
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
+# #     python get-pip.py && \
+# #     rm get-pip.py
+
+# RUN pip --no-cache-dir install \
+#         Pillow \
+#         h5py \
+#         ipykernel \
+#         jupyter \
+#         matplotlib \
+#         numpy \
+#         pandas \
+#         scipy \
+#         sklearn \
+#         && \
+#     python -m ipykernel.kernelspec
+
+# # Djangoインストール
+# RUN pip install django
+
+#build command
+#docker build -t {任意のイメージ名} .
+#docker build -t --no-cache python3-apache .
+#起動コマンド
+#docker run -it --name {任意のコンテナ名} {作成したイメージ名} /bin/bash
+#docker run -it -p 80:80 --name python3-apache python3-apache /bin/bash
+#/etc/init.d/apache2 restart
+FROM ubuntu:16.04
+MAINTAINER sumi
+
+#version
+#python 3.5.2
+#opencv
+#
+#
+
+#https://qiita.com/kekedadamama/items/154753aa8974774a8b2b
+#https://qiita.com/RyosukeKamei/items/eca9687162b7fe122094
+#https://qiita.com/uronism/items/
+#https://qiita.com/tkhm/items/6c2b021d552e009b04a9
+
+# Pick up some TF dependencies
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev zlib1g-dev libsqlite3-dev libreadline6-dev libgdbm-dev libbz2-dev tk-dev \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip \
+  && apt-get install -y \
+  	 build-essential \
+  	 wget \
+  	 unzip \
+  	 cmake \
+     vim
+
+
+
+RUN pip --no-cache-dir install \
+        Pillow \
+        h5py \
+        ipykernel \
+        jupyter \
+        matplotlib \
+        numpy \
+        pandas \
+        scipy \
+        sklearn \
+        && \
+    python -m ipykernel.kernelspec
+
+# apache
+RUN apt-get install -y apt-utils curl apache2 apache2-dev apache2-utils libapache2-mod-wsgi-py3
+#apt-get apache2-dev libapache2-mod-wsgi-py3
+#pip3 install mod_wsgi
+#pip3 install mod_wsgiをあとでいれちゃったけど　libapache2-mod-wsgi-py3 がはいってなかった
+#mod_wsgi は Djangoに必要だったcgi_modです
+# Djangoインストール
+RUN pip install django
+
+# Install to OpenCV
+WORKDIR /
+ENV OPENCV_VERSION="3.4.0"
+RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
+&& unzip ${OPENCV_VERSION}.zip \
+&& mkdir /opencv-${OPENCV_VERSION}/cmake_binary \
+&& cd /opencv-${OPENCV_VERSION}/cmake_binary \
+&& cmake -DBUILD_TIFF=ON \
+  -DBUILD_opencv_java=OFF \
+  -DWITH_CUDA=OFF \
+  -DENABLE_AVX=ON \
+  -DWITH_OPENGL=ON \
+  -DWITH_OPENCL=ON \
+  -DWITH_IPP=ON \
+  -DWITH_TBB=ON \
+  -DWITH_EIGEN=ON \
+  -DWITH_V4L=ON \
+  -DBUILD_TESTS=OFF \
+  -DBUILD_PERF_TESTS=OFF \
+  -DCMAKE_BUILD_TYPE=RELEASE \
+  -DCMAKE_INSTALL_PREFIX=$(python3.5 -c "import sys; print(sys.prefix)") \
+  -DPYTHON_EXECUTABLE=$(which python3.5) \
+  -DPYTHON_INCLUDE_DIR=$(python3.5 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") \
+  -DPYTHON_PACKAGES_PATH=$(python3.5 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") .. \
+&& make install \
+&& rm /${OPENCV_VERSION}.zip \
+&& rm -r /opencv-${OPENCV_VERSION}
+
