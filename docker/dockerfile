@@ -144,19 +144,21 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
    # 18  apt-get -y libapache2-mod-wsgi
    # 19  apt-get -y install  libapache2-mod-wsgi
    # 20  apt-get -y remove  libapache2-mod-wsgi
+   #
    # 21  apt-get install libapache2-mod-wsgi-py3
+   #sita pass 表示
    # 22  mod_wsgi-express module-config
    # 23  /usr/local/licbb
    # 24  python3.5 -c "import sys; print(sys.path)"
    #ここから
-   # 25  pip3 install mod_wsgi
+   # !25  pip3 install mod_wsgi
    # 26  python3.5 -c "import sys; print(sys.path)"
    # 27  cd /usr/local/lib/python3.5/dist-packages/mod_wsgi/server/
    # 28  ll
    # 29  pwd
    # 30  cd /etc/apache2/conf-available/
-   # 31  vim wsgi.conf
-   # 32  a2enconf wsgi.conf
+   # !31  vim wsgi.conf
+   # !32  a2enconf wsgi.conf
    # 33  /etc/init.d/apache2 restart
    # 34  history
    # 35  tail /var/log/apache2/error.log
@@ -167,8 +169,8 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
    # 40  /etc/init.d/apache2 restart
    # 41  ls -l /home
    # 42  adduser root
-   # 43  adduser user
+   # !43  adduser user
    # 44  ls -l /home
    # 45  vim wsgi.conf
-   # 46  /etc/init.d/apache2 restart
+   # !46  /etc/init.d/apache2 restart
    # 47  history
