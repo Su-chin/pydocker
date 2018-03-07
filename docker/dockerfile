@@ -93,13 +93,17 @@ RUN pip --no-cache-dir install \
     python -m ipykernel.kernelspec
 
 # apache
-RUN apt-get install -y apt-utils curl apache2 apache2-dev apache2-utils libapache2-mod-wsgi-py3
-#apt-get apache2-dev libapache2-mod-wsgi-py3
+RUN apt-get install -y apt-utils curl apache2 apache2-dev apache2-utils
+RUN pip3 mod_wsgi
+#いるのかわからない
+#libapache2-mod-wsgi-py3
+
+#apt-get apache2-dev libapache2-mod-wsgi-py3 libapache2-mod-python
 #pip3 install mod_wsgi
 #pip3 install mod_wsgiをあとでいれちゃったけど　libapache2-mod-wsgi-py3 がはいってなかった
 #mod_wsgi は Djangoに必要だったcgi_modです
 # Djangoインストール
-RUN pip install django
+RUN pip3 install django
 
 # Install to OpenCV
 WORKDIR /
@@ -129,3 +133,42 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && rm /${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
 
+#historys
+   # 11  apt-get remove libapache2-mod-wsgi-py3
+   # 12  pip install mod_wsgi
+   # 13  mod_wsgi-express module-config
+   # 14  pip remove  mod_wsgi
+   # 15  pip
+   # 16  pip uninstall  mod_wsgi
+   # 17  pip intstall libapache2-mod-wsgi
+   # 18  apt-get -y libapache2-mod-wsgi
+   # 19  apt-get -y install  libapache2-mod-wsgi
+   # 20  apt-get -y remove  libapache2-mod-wsgi
+   # 21  apt-get install libapache2-mod-wsgi-py3
+   # 22  mod_wsgi-express module-config
+   # 23  /usr/local/licbb
+   # 24  python3.5 -c "import sys; print(sys.path)"
+   #ここから
+   # 25  pip3 install mod_wsgi
+   # 26  python3.5 -c "import sys; print(sys.path)"
+   # 27  cd /usr/local/lib/python3.5/dist-packages/mod_wsgi/server/
+   # 28  ll
+   # 29  pwd
+   # 30  cd /etc/apache2/conf-available/
+   # 31  vim wsgi.conf
+   # 32  a2enconf wsgi.conf
+   # 33  /etc/init.d/apache2 restart
+   # 34  history
+   # 35  tail /var/log/apache2/error.log
+   # 36  /etc/init.d/apache2 restart
+   # 37  vim wsgi.conf
+   # 38  /etc/init.d/apache2 restart
+   # 39  vim wsgi.conf
+   # 40  /etc/init.d/apache2 restart
+   # 41  ls -l /home
+   # 42  adduser root
+   # 43  adduser user
+   # 44  ls -l /home
+   # 45  vim wsgi.conf
+   # 46  /etc/init.d/apache2 restart
+   # 47  history
