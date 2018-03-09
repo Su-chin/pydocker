@@ -46,6 +46,7 @@
 #build command
 #docker build -t {任意のイメージ名} .
 #docker build -t --no-cache python3-apache .
+#docker build -t python3-apache .
 #起動コマンド
 #docker run -it --name {任意のコンテナ名} {作成したイメージ名} /bin/bash
 #docker run -it -p 80:80 --name python3-apache python3-apache /bin/bash
@@ -94,7 +95,7 @@ RUN pip --no-cache-dir install \
 
 # apache
 RUN apt-get install -y apt-utils curl apache2 apache2-dev apache2-utils
-RUN pip3 mod_wsgi
+RUN pip3 install mod_wsgi
 #いるのかわからない
 #libapache2-mod-wsgi-py3
 
@@ -132,6 +133,16 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && make install \
 && rm /${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
+
+# user作成
+# RUN useradd -m user && echo "user:user" | chpasswd && gpasswd -a user
+RUN mkdir -p /var/www/app
+# user 権限を追加a
+
+ADD wsgi.conf /etc/apache2/conf-available/
+
+# apache起動
+CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 
 #historys
    # 11  apt-get remove libapache2-mod-wsgi-py3
