@@ -106,7 +106,7 @@ RUN pip3 install mod_wsgi
 # Djangoインストール
 RUN pip3 install django
 
-# Install to OpenCV
+Install to OpenCV
 WORKDIR /
 ENV OPENCV_VERSION="3.4.0"
 RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
@@ -134,15 +134,22 @@ RUN wget https://github.com/opencv/opencv/archive/${OPENCV_VERSION}.zip \
 && rm /${OPENCV_VERSION}.zip \
 && rm -r /opencv-${OPENCV_VERSION}
 
-# user作成
-# RUN useradd -m user && echo "user:user" | chpasswd && gpasswd -a user
-RUN mkdir -p /var/www/app
-# user 権限を追加a
 
+# user作成
+RUN groupadd -g 1000 user && \
+    useradd  -g      user -G sudo -m -s /bin/bash user && \
+    echo 'user:user' | chpasswd
+
+# アプリケーションフォルダ作成
+RUN mkdir -p /var/www/app
+
+# マウント
 ADD wsgi.conf /etc/apache2/conf-available/
 
+#できない
 # apache起動
-CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+# CMD ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+CMD ["/etc/init.d/apache2 start", "FOREGROUND"]
 
 #historys
    # 11  apt-get remove libapache2-mod-wsgi-py3
